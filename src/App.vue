@@ -1,5 +1,5 @@
 <template>
-  <h1>VMail Inbox</h1>
+  <h1>DesertMail Inbox</h1>
   <Suspense>
     <template #default>
       <MailTable />
@@ -28,6 +28,12 @@ export default {
 </script>
 
 <style>
+body {
+  background: url("assets/desert.jpg") no-repeat;
+}
+h1 {
+  color: #aabbcc;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -110,7 +116,8 @@ input[type="checkbox"]:checked {
   background-color: white;
   min-height: 500px;
   z-index: 10;
-  opacity: 1;
+  opacity: 0.9;
+  border: solid 3px rgba(233, 23, 21, 0.2);
 }
 
 /* Email Modal */
@@ -126,11 +133,12 @@ input[type="checkbox"]:checked {
 }
 
 .mail-table tr.read {
-  background-color: #eee;
+  background-color: rgba(238, 238, 238, 0.33);
 }
 
 .mail-table tr {
   height: 40px;
+  background-color: #eee;
 }
 
 .mail-table td {

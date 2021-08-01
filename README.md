@@ -1,4 +1,4 @@
-# vue-3-demo
+# Gmail Clone - DesertMail
 
 ## Project setup
 ```
