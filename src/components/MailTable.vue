@@ -23,7 +23,9 @@
         <td class="date" @click="openEmail(email)">
           {{ format(new Date(email.sentAt), "MMM do yyyy") }}
         </td>
-        <td><button @click="archiveEmail(email)">Archive</button></td>
+        <td>
+          <button @click="archiveEmail(email)">Archive</button>
+        </td>
       </tr>
     </tbody>
   </table>
@@ -37,7 +39,8 @@ import { format } from "date-fns";
 import axios from "axios";
 import MailView from "@/components/MailView.vue";
 import ModalView from "@/components/ModalView.vue";
-import { ref, reactive } from "vue";
+import { reactive, ref } from "vue";
+
 export default {
   async setup() {
     let { data: emails } = await axios.get("http://localhost:3000/emails");
