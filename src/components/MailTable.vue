@@ -24,7 +24,7 @@
     </tbody>
   </table>
   <ModalView v-if="openedEmail" @closeModal="openedEmail = null">
-    <MailView :email="openedEmail" />
+    <MailView :email="openedEmail" @changeEmail="changeEmail" />
   </ModalView>
   <div v-if="openedEmail">{{ openedEmail.subject }}</div>
 </template>
@@ -71,6 +71,27 @@ export default {
       email.read = true;
       this.updateEmail(email);
       this.openedEmail = email;
+    },
+    changeEmail({ toggleArchive, toggleRead, save, closeModal, changeIndex }) {
+      let email = this.openedEmail;
+      if (toggleRead) {
+        email.read = !email.read;
+      }
+      if (toggleArchive) {
+        email.archived = !email.archived;
+      }
+      if (save) {
+        this.updateEmail(email);
+      }
+      if (closeModal) {
+        this.openedEmail = null;
+      }
+      if (changeIndex) {
+        let emails = this.unarchivedEmails;
+        let currentIndex = emails.indexOf(this.openedEmail);
+        let newEmail = emails[currentIndex + changeIndex];
+        this.openEmail(newEmail);
+      }
     }
   }
 };
