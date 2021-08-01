@@ -1,53 +1,68 @@
 <template>
+  <h1>{{ emailSelection.emails.size }} emails selected</h1>
   <table class="mail-table">
     <tbody>
       <tr
         v-for="email in unarchivedEmails"
         :key="email.id"
         :class="['clickable', email.read ? 'read' : '']"
-        @click="openEmail(email)"
       >
         <td>
-          <input type="checkbox" />
+          <input
+            type="checkbox"
+            @click="emailSelection.toggle(email)"
+            :selected="emailSelection.emails.has(email)"
+          />
         </td>
-        <td>{{ email.from }}</td>
-        <td>
+        <td @click="openEmail(email)">{{ email.from }}</td>
+        <td @click="openEmail(email)">
           <p>
             <strong>{{ email.subject }}</strong> - {{ email.body }}
           </p>
         </td>
-        <td class="date">{{ format(new Date(email.sentAt), "MMM do yyyy") }}</td>
-        <td>
-          <button @click="archiveEmail(email)">Archive</button>
+        <td class="date" @click="openEmail(email)">
+          {{ format(new Date(email.sentAt), "MMM do yyyy") }}
         </td>
+        <td><button @click="archiveEmail(email)">Archive</button></td>
       </tr>
     </tbody>
   </table>
   <ModalView v-if="openedEmail" @closeModal="openedEmail = null">
     <MailView :email="openedEmail" @changeEmail="changeEmail" />
   </ModalView>
-  <div v-if="openedEmail">{{ openedEmail.subject }}</div>
 </template>
 
 <script>
 import { format } from "date-fns";
 import axios from "axios";
 import MailView from "@/components/MailView.vue";
-import ModalView from "@/components/ModalView";
-
+import ModalView from "@/components/ModalView.vue";
+import { ref, reactive } from "vue";
 export default {
-  name: "MailTable",
-  components: {
-    ModalView,
-    MailView
-  },
   async setup() {
     let { data: emails } = await axios.get("http://localhost:3000/emails");
-    return {
-      format,
-      emails: emails,
-      openedEmail: null
+    let selected = reactive(new Set());
+    let emailSelection = {
+      emails: selected,
+      toggle(email) {
+        if (selected.has(email)) {
+          selected.delete(email);
+        } else {
+          selected.add(email);
+        }
+        console.log(selected);
+      }
     };
+    return {
+      emailSelection,
+      format,
+      emails: ref(emails),
+      openedEmail: ref(null)
+    };
+  },
+  components: {
+    MailView,
+    ModalView
   },
   computed: {
     sortedEmails() {
@@ -60,19 +75,18 @@ export default {
     }
   },
   methods: {
+    openEmail(email) {
+      this.openedEmail = email;
+      if (email) {
+        email.read = true;
+        this.updateEmail(email);
+      }
+    },
     archiveEmail(email) {
       email.archived = true;
       this.updateEmail(email);
     },
-    updateEmail(email) {
-      axios.put(`http://localhost:3000/emails/${email.id}`, email);
-    },
-    openEmail(email) {
-      email.read = true;
-      this.updateEmail(email);
-      this.openedEmail = email;
-    },
-    changeEmail({ toggleArchive, toggleRead, save, closeModal, changeIndex }) {
+    changeEmail({ toggleRead, toggleArchive, save, closeModal, changeIndex }) {
       let email = this.openedEmail;
       if (toggleRead) {
         email.read = !email.read;
@@ -92,7 +106,12 @@ export default {
         let newEmail = emails[currentIndex + changeIndex];
         this.openEmail(newEmail);
       }
+    },
+    updateEmail(email) {
+      axios.put(`http://localhost:3000/emails/${email.id}`, email);
     }
   }
 };
 </script>
+
+<style scoped></style>
